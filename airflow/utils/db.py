@@ -242,3 +242,25 @@ def resetdb():
     if mc._version.exists(settings.engine):
         mc._version.drop(settings.engine)
     initdb()
+
+
+@provide_session
+def purge(dag_id, session=None):
+    '''
+    Purge a DAG from the database
+    '''
+    from airflow import models
+    _models = [
+        models.DagModel,
+        models.DagRun,
+        models.BaseJob,
+        models.Log,
+        models.SlaMiss,
+        models.TaskInstance,
+        models.XCom
+    ]    
+    for model in _models:
+        session.query(model) \
+            .filter(model.dag_id == dag_id) \
+            .delete()
+
