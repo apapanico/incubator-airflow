@@ -545,6 +545,17 @@ def resetdb(args):
     else:
         print("Bail.")
 
+def purge_dag():
+    dag_id = args.dag_id
+    msg = "This will purge DAG {!r} if it exists. Proceed? (y/n)".format(
+        dag_id)
+    if args.yes or input(msg).upper() == "Y":
+        logging.basicConfig(level=settings.LOGGING_LEVEL,
+                            format=settings.SIMPLE_LOG_FORMAT)
+        db_utils.purge(dag_id)
+    else:
+        print("Bail.")
+
 
 def upgradedb(args):  # noqa
     print("DB: " + repr(settings.engine.url))
@@ -909,6 +920,10 @@ class CLIFactory(object):
             'help': "Burn down and rebuild the metadata database",
             'args': ('yes',),
         }, {
+            'func': purge_dag,
+            'help': 'Purge a DAG from the database',
+            'args': ('dag_id', 'yes'),
+        {
             'func': upgradedb,
             'help': "Upgrade metadata database to latest version",
             'args': tuple(),
